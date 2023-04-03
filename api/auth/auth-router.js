@@ -17,8 +17,7 @@ router.post("/register", validateRoleName, async (req, res, next) => {
       "role_name": "angel"
     }
    */
-  const { username, password } = req.body;
-  const { role_name } = req;
+  const { username, password, role_name } = req.body;
   const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
 
   await User.add({ username, password: hash, role_name })
