@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../secrets"); // use this secret!
+const User = require("../users/users-model");
 
 const restricted = (req, res, next) => {
   /*
@@ -44,14 +45,14 @@ const only = (role_name) => (req, res, next) => {
     Pull the decoded token from the req object, to avoid verifying it again!
   */
 
-  if (role_name && req.decodedToken.role_name) {
+  if (role_name === req.decodedToken.role_name) {
     next();
   } else {
     next({ status: 403, message: "This is not for you" });
   }
 };
 
-const checkUsernameExists = (req, res, next) => {
+const checkUsernameExists = async (req, res, next) => {
   /*
     If the username in req.body does NOT exist in the database
     status 401
@@ -59,12 +60,11 @@ const checkUsernameExists = (req, res, next) => {
       "message": "Invalid credentials"
     }
   */
-
-  const { username } = req.body;
-  if (!username.length) {
-    next({ status: 401, message: "invalid credentials" });
+  const [user] = await User.findBy({ username: req.body.username });
+  if (!user) {
+    next({ status: 401, message: "Invalid credentials" });
   } else {
-    req.user = username;
+    req.user = user;
     next();
   }
 };
@@ -99,7 +99,7 @@ const validateRoleName = (req, res, next) => {
   } else if (role_name.trim().length > 32) {
     next({ status: 422, message: "Role name can not be longer than 32 chars" });
   } else {
-    role_name = role_name.trim();
+    req.role_name = role_name.trim();
     next();
   }
 };
