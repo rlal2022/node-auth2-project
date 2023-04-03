@@ -5,7 +5,7 @@ const { checkUsernameExists, validateRoleName } = require("./auth-middleware");
 const User = require("../users/users-model");
 const { JWT_SECRET } = require("../secrets"); // use this secret!
 
-router.post("/register", validateRoleName, async (req, res, next) => {
+router.post("/register", validateRoleName, (req, res, next) => {
   /**
     [POST] /api/auth/register { "username": "anna", "password": "1234", "role_name": "angel" }
 
@@ -21,7 +21,7 @@ router.post("/register", validateRoleName, async (req, res, next) => {
   const { role_name } = req;
   const hash = bcrypt.hashSync(password, 8);
 
-  await User.add({ username, password: hash, role_name })
+  User.add({ username, password: hash, role_name })
     .then((newUser) => {
       res.status(201).json(newUser);
     })
