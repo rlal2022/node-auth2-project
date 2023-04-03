@@ -21,9 +21,11 @@ router.post("/register", validateRoleName, async (req, res, next) => {
   const { role_name } = req;
   const hash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
 
-  await User.add({ username, password: hash, role_name }).then((newUser) => {
-    res.status(201).json(newUser);
-  });
+  await User.add({ username, password: hash, role_name })
+    .then((newUser) => {
+      res.status(201).json(newUser);
+    })
+    .catch(next);
 });
 
 router.post("/login", checkUsernameExists, (req, res, next) => {

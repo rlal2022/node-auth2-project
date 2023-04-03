@@ -19,18 +19,17 @@ const restricted = (req, res, next) => {
   */
 
   const token = req.headers.authorization;
-  if (token) {
-    jwt.verify(token, JWT_SECRET, (err, decoded) => {
-      if (err) {
-        next({ status: 401, message: "Token invalid" });
-      } else {
-        req.decodedJwt = decoded;
-        next();
-      }
-    });
-  } else {
-    next({ status: 401, message: "Token required" });
+  if (!token) {
+    return next({ status: 401, message: "Token required" });
   }
+  jwt.verify(token, JWT_SECRET, (err, decodedToken) => {
+    if (err) {
+      next({ status: 401, message: "Token invalid" });
+    } else {
+      req.decodedToken = decodedToken;
+      next();
+    }
+  });
 };
 
 const only = (role_name) => (req, res, next) => {
@@ -45,7 +44,7 @@ const only = (role_name) => (req, res, next) => {
     Pull the decoded token from the req object, to avoid verifying it again!
   */
 
-  if (req.decodedJwt && req.decodedJw.role_name === role_name) {
+  if (role_name && req.decodedToken.role_name) {
     next();
   } else {
     next({ status: 403, message: "This is not for you" });
@@ -62,10 +61,11 @@ const checkUsernameExists = (req, res, next) => {
   */
 
   const { username } = req.body;
-  if (username.length) {
-    next();
-  } else {
+  if (!username.length) {
     next({ status: 401, message: "invalid credentials" });
+  } else {
+    req.user = username;
+    next();
   }
 };
 
