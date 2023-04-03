@@ -48,24 +48,24 @@ router.post("/login", checkUsernameExists, (req, res, next) => {
       "role_name": "admin" // the role of the authenticated user
     }
    */
-  //   const { username, password } = req.body;
-  //   User.findBy({ username })
-  //     .then(([user]) => {
-  //       if (user && bcrypt.compareSync(password, user.password)) {
-  //         const token = buildToken(user);
-  //         res.status(200).json({ message: `${username} is back!`, token });
-  //       } else {
-  //         next({ status: 401, message: "invalid credentials" });
-  //       }
-  //     })
-  //     .catch(next);
+  const { username, password } = req.body;
+  User.findBy({ username })
+    .then(([user]) => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        const token = buildToken(user);
+        res.status(200).json({ message: `${username} is back!`, token });
+      } else {
+        next({ status: 401, message: "invalid credentials" });
+      }
+    })
+    .catch(next);
 
-  if (bcrypt.compareSync(req.body.username, req.user.password)) {
-    const token = buildToken(req.user);
-    res.status(200).json({ message: `${req.user.username} is back!`, token });
-  } else {
-    next({ status: 401, message: "invalid credentials" });
-  }
+  // if (bcrypt.compareSync(req.body.username, req.user.password)) {
+  //   const token = buildToken(req.user);
+  //   res.status(200).json({ message: `${req.user.username} is back!`, token });
+  // } else {
+  //   next({ status: 401, message: "invalid credentials" });
+  // }
 });
 
 function buildToken(user) {
